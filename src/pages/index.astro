@@ -2,50 +2,183 @@
 import { getImage } from 'astro:assets';
 import '../styles/site.css';
 
-import heroPortrait from '../assets/img/hero-portrait.jpg';
-import heroLandscape from '../assets/img/hero-landscape.jpg';
-import deptStationery from '../assets/img/dept-stationery.jpg';
-import deptOffice from '../assets/img/dept-office.jpg';
-import deptPrinting from '../assets/img/dept-printing.jpg';
-import deptGifts from '../assets/img/dept-gifts.jpg';
+import heroWide from '../assets/img/hero-light-wide.jpg';
+import heroTall from '../assets/img/hero-light-tall.jpg';
+import boutiqueInterior from '../assets/img/boutique-interior.jpg';
+import openingHospitality from '../assets/img/opening-hospitality.jpg';
+import deptStationery from '../assets/img/dept-stationery-v2.jpg';
+import deptOffice from '../assets/img/dept-office-v2.jpg';
+import deptPrinting from '../assets/img/dept-printing-v2.jpg';
+import deptGifts from '../assets/img/dept-gifts-v2.jpg';
+import galleryCalligraphy from '../assets/img/gallery-calligraphy.jpg';
+import galleryStudio from '../assets/img/gallery-studio.jpg';
+import ivoryFlatlay from '../assets/img/ivory-flatlay.png';
 
 const SITE = 'https://alhikmah-stationery.vercel.app';
 const WA = '971503997597';
 const LAT = 25.3714104;
 const LNG = 55.4025383;
 
-// Responsive image helper: one set of widths per format.
 async function set(src: ImageMetadata, widths: number[], format: 'avif' | 'webp' | 'jpeg') {
-  const imgs = await Promise.all(widths.map((w) => getImage({ src, width: w, format, quality: format === 'avif' ? 55 : 72 })));
+  const imgs = await Promise.all(
+    widths.map((w) => getImage({ src, width: w, format, quality: format === 'avif' ? 60 : 78 }))
+  );
   return imgs.map((i, n) => `${i.src} ${widths[n]}w`).join(', ');
 }
+
 async function pic(src: ImageMetadata, widths: number[]) {
-  const fallback = await getImage({ src, width: widths[Math.min(1, widths.length - 1)], format: 'jpeg', quality: 72 });
-  return { avif: await set(src, widths, 'avif'), webp: await set(src, widths, 'webp'), jpg: fallback.src };
+  const fallback = await getImage({ src, width: widths[widths.length - 1], format: 'jpeg', quality: 82 });
+  return {
+    avif: await set(src, widths, 'avif'),
+    webp: await set(src, widths, 'webp'),
+    jpg: fallback.src,
+  };
 }
 
-const hero = {
-  wide: await pic(heroLandscape, [960, 1440, 1920]),
-  tall: await pic(heroPortrait, [480, 750, 1080]),
-};
+const heroBgPic = await pic(heroWide, [960, 1440, 1920]);
+const heroCardPic = await pic(heroTall, [540, 820, 1080]);
+const hospPic = await pic(openingHospitality, [480, 760, 1080]);
+const boutiquePic = await pic(boutiqueInterior, [540, 860, 1200]);
 
 const departments = [
-  { id: 'stationery', en: 'Stationery', ar: 'القرطاسية', shelves: 'Pens, pencils, notebooks, colours, art and geometry sets', img: deptStationery, alt: 'Coloured pencils, a brass ruler and gold paper clips on ivory paper' },
-  { id: 'office', en: 'File & office supplies', ar: 'الملفات واللوازم المكتبية', shelves: 'Box files, folders, staplers, A4 paper, desk organisers', img: deptOffice, alt: 'An open gilt-edged notebook and a fountain pen on black marble' },
-  { id: 'printing', en: 'All printing products', ar: 'مستلزمات الطباعة', shelves: 'Printer ink, toner, photo paper, labels', img: deptPrinting, alt: 'A black fountain pen and a brass ruler beside a gold-edged notebook' },
-  { id: 'gifts', en: 'Gifts & more', ar: 'الهدايا والمزيد', shelves: 'Gift pens, gift sets, wrapping, occasion items', img: deptGifts, alt: 'A champagne satin ribbon tied in a bow beside coloured pencils' },
+  {
+    num: '01',
+    en: 'Stationery & Fine Writing',
+    ar: 'القرطاسية وأدوات الكتابة',
+    desc: 'Fountain & rollerball pens, linen notebooks, sketchbooks, artist colours, school kits and precision brass geometry tools.',
+    tags: ['Fountain Pens', 'Notebooks', 'Art Colours', 'Geometry Sets'],
+    img: deptStationery,
+    alt: 'Linen sketchbooks, charcoal and brass pens, earth-tone coloured pencils and brass geometry compass on sunlit ivory paper',
+  },
+  {
+    num: '02',
+    en: 'File & Office Supplies',
+    ar: 'الملفات واللوازم المكتبية',
+    desc: 'Archival lever-arch box files, bound presentation folders, heavy cotton A4 paper, brass staplers and desk organisers.',
+    tags: ['Box Files', 'Folders', 'A4 Paper', 'Desk Organisers'],
+    img: deptOffice,
+    alt: 'Linen archival box files in sand, sage and ivory beside A4 cotton paper and a brass stapler on pale oak',
+  },
+  {
+    num: '03',
+    en: 'All Printing Products',
+    ar: 'جميع مستلزمات الطباعة',
+    desc: 'Genuine printer inks, laser toners, glossy & matte photo paper, shipping rolls and crisp archival labels.',
+    tags: ['Printer Ink', 'Toners', 'Photo Paper', 'Adhesive Labels'],
+    img: deptPrinting,
+    alt: 'Frosted CMYK ink bottles, cream photo paper stacks and label rolls on sunlit travertine stone',
+  },
+  {
+    num: '04',
+    en: 'Gifts & Occasion Studio',
+    ar: 'الهدايا والمناسبات',
+    desc: 'Curated presentation pen boxes, champagne ribbon wrapping, wax-sealed greeting cards and bespoke occasion keepsakes.',
+    tags: ['Gift Pens', 'Boxed Sets', 'Satin Wrapping', 'Wax Seals'],
+    img: deptGifts,
+    alt: 'Champagne ribbon gift boxes, embossed wax-sealed invitation envelope and presentation fountain pen box',
+  },
 ];
-const deptPics = await Promise.all(departments.map((d) => pic(d.img, [400, 720, 1000])));
-const winPics = await Promise.all(departments.map((d) => getImage({ src: d.img, width: 360, format: 'webp', quality: 70 })));
 
-const rsvpText = "Hello Al Hikmah! I'll be at the grand opening on Sunday 29 November at 4 PM.";
+const deptPics = await Promise.all(departments.map((d) => pic(d.img, [480, 760, 1080])));
+
+const galleryItems = [
+  {
+    cls: 'gal-item--a',
+    img: ivoryFlatlay,
+    en: 'Opening Edition Flatlay — Notebook, Brass Ruler & Champagne Ribbon',
+    ar: 'تفاصيل افتتاح المكتبة',
+    alt: 'Gilt-edged open ivory notebook, black and gold fountain pen, brass ruler, coloured pencils and champagne satin ribbon bow',
+  },
+  {
+    cls: 'gal-item--b',
+    img: galleryCalligraphy,
+    en: 'Calligraphy Qalam Pens, Inkwell & Wax-Sealed Cotton Cards',
+    ar: 'أقلام الخط العربي والمحبرة',
+    alt: 'Hand-carved bamboo qalam reed pens beside brass inkwell and handmade ivory cards sealed with gold wax',
+  },
+  {
+    cls: 'gal-item--c',
+    img: boutiqueInterior,
+    en: 'Sunlit Sharjah Shelves & Limestone Alcoves',
+    ar: 'أجواء المعرض في الشارقة',
+    alt: 'Sunlit minimal luxury stationery shelves in pale oak and cream limestone with notebooks, pens and box files',
+  },
+  {
+    cls: 'gal-item--d',
+    img: openingHospitality,
+    en: 'Opening Afternoon Hospitality — Arabic Qahwa, Dates & Guestbook',
+    ar: 'الضيافة الإماراتية وحفل الترحيب',
+    alt: 'Champagne ribbon, blank ivory guestbook, brass Arabic coffee dallah, finjan cups and dates on sunlit travertine',
+  },
+  {
+    cls: 'gal-item--e',
+    img: deptStationery,
+    en: 'Precision Drafting & Classroom Colours',
+    ar: 'أدوات الرسم والهندسة',
+    alt: 'Overhead flatlay of linen notebooks, brass compass, ruler, pencils and pens',
+  },
+  {
+    cls: 'gal-item--f',
+    img: deptGifts,
+    en: 'Curated Gift Wrapping & Presentation Sets',
+    ar: 'تغليف الهدايا الفاخرة',
+    alt: 'Cream and champagne gift boxes tied with silk satin ribbons and gold wax seal',
+  },
+  {
+    cls: 'gal-item--g',
+    img: galleryStudio,
+    en: 'Artist Watercolours, Linen Journals & Mechanical Drafting Pencils',
+    ar: 'الألوان المائية والدفاتر الفنية',
+    alt: 'Sunlit pale oak studio desk with brass watercolour tin, brushes, spiral pad, linen journal and metal mechanical pencils',
+  },
+  {
+    cls: 'gal-item--h',
+    img: heroWide,
+    en: 'The Writing Desk — Where Every Good Idea Begins',
+    ar: 'مكتب الكتابة والإلهام',
+    alt: 'Open cream journal with fountain pen, brass ruler, pastel pencils and champagne ribbon in morning sunlight',
+  },
+];
+
+const galleryPics = await Promise.all(galleryItems.map((g) => pic(g.img, [480, 820, 1200])));
+
+const programSteps = [
+  {
+    time: '4:00 PM',
+    en: 'Ribbon Cutting & Welcome Reception',
+    ar: 'قص الشريط واستقبال الضيوف',
+    desc: 'Doors open at our Sharjah store with traditional Arabic coffee, dates, and a warm welcome for family, friends and neighbours.',
+  },
+  {
+    time: '4:30 PM',
+    en: 'Curated Shelves Discovery',
+    ar: 'جولة في أقسام المكتبة',
+    desc: 'Explore all four departments — fine pens and student tools, archival office supplies, printing essentials, and bespoke gifts.',
+  },
+  {
+    time: '5:15 PM',
+    en: 'Opening Day Keepsake',
+    ar: 'هدايا تذكارية ليوم الافتتاح',
+    desc: 'Enjoy a complimentary opening-day stationery keepsake and preview our signature champagne ribbon gift-wrapping station.',
+  },
+  {
+    time: '6:00 PM – 9:00 PM',
+    en: 'Schools, Offices & Community Desk',
+    ar: 'طلبات المدارس والمكاتب',
+    desc: 'Connect with our team regarding school booklists, bulk corporate stationery, custom gifting and printer consumables.',
+  },
+];
+
+const rsvpText = "Assalamu Alaikum / Hello Al Hikmah Stationery! I'll be attending the Grand Opening on Sunday, 29 November 2026 at 4:00 PM.";
 const waRsvp = `https://wa.me/${WA}?text=${encodeURIComponent(rsvpText)}`;
-const gcal = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
-  + '&text=' + encodeURIComponent('Al Hikmah Stationery — Grand Opening')
-  + '&dates=20261129T120000Z/20261129T140000Z'
-  + '&location=' + encodeURIComponent('Al Hikmah Stationery, Sharjah, UAE (9CC3+H26)')
-  + '&details=' + encodeURIComponent('Grand opening of Al Hikmah Stationery. Invitation: ' + SITE);
+const gcal =
+  'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+  '&text=' + encodeURIComponent('Al Hikmah Stationery — Grand Opening') +
+  '&dates=20261129T120000Z/20261129T170000Z' +
+  '&location=' + encodeURIComponent('Al Hikmah Stationery, 9CC3+H26, Sharjah, UAE') +
+  '&details=' + encodeURIComponent('You are cordially invited to the Grand Opening of Al Hikmah Stationery, Sharjah. Invitation: ' + SITE);
 const directions = `https://www.google.com/maps/dir/?api=1&destination=${LAT},${LNG}`;
+const mapPlace = `https://www.google.com/maps/place/25%C2%B022'17.1%22N+55%C2%B024'09.1%22E/@${LAT},${LNG},17z`;
 const mapEmbed = `https://maps.google.com/maps?q=${LAT},${LNG}&z=16&hl=en&output=embed`;
 ---
 <!doctype html>
@@ -53,216 +186,768 @@ const mapEmbed = `https://maps.google.com/maps?q=${LAT},${LNG}&z=16&hl=en&output
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Al Hikmah Stationery · Grand Opening, Sun 29 Nov, 4 PM · Sharjah</title>
-  <meta name="description" content="You're invited to the grand opening of Al Hikmah Stationery in Sharjah: stationery, office supplies, printing products and gifts. Sunday 29 November 2026, 4:00 PM.">
-  <meta name="theme-color" content="#0B0A09">
+  <title>Al Hikmah Stationery · Grand Opening Invitation · Sun 29 Nov, 4 PM · Sharjah</title>
+  <meta name="description" content="You are cordially invited to the Grand Opening of Al Hikmah Stationery in Sharjah, UAE on Sunday 29 November 2026 at 4:00 PM. Stationery, office supplies, printing products & gifts.">
+  <meta name="theme-color" content="#FAF6EE">
   <link rel="canonical" href={SITE + '/'}>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta property="og:type" content="website">
   <meta property="og:url" content={SITE + '/'}>
-  <meta property="og:title" content="You're invited: Al Hikmah Stationery Grand Opening">
-  <meta property="og:description" content="Sunday 29 November 2026 · 4:00 PM · Sharjah. حفل الافتتاح الكبير">
+  <meta property="og:title" content="You’re Invited: Al Hikmah Stationery Grand Opening">
+  <meta property="og:description" content="Sunday 29 November 2026 · 4:00 PM · Sharjah, UAE · حفل الافتتاح الكبير">
   <meta property="og:image" content={SITE + '/og.jpg'}>
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
+
   <link rel="preload" href="/fonts/cormorant-600.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" as="image" type="image/avif" imagesrcset={hero.tall.avif} imagesizes="100vw" media="(max-width: 767px)" fetchpriority="high">
-  <link rel="preload" as="image" type="image/avif" imagesrcset={hero.wide.avif} imagesizes="100vw" media="(min-width: 768px)" fetchpriority="high">
+  <link rel="preload" as="image" type="image/avif" imagesrcset={heroBgPic.avif} imagesizes="92vw" media="(max-width: 1023px)" fetchpriority="high">
+  <link rel="preload" as="image" type="image/avif" imagesrcset={heroCardPic.avif} imagesizes="470px" media="(min-width: 1024px)" fetchpriority="high">
   <script is:inline>document.documentElement.className = 'js';</script>
+
   <script type="application/ld+json" set:html={JSON.stringify({
-    '@context': 'https://schema.org', '@type': 'Event',
+    '@context': 'https://schema.org',
+    '@type': 'Event',
     name: 'Al Hikmah Stationery — Grand Opening',
-    startDate: '2026-11-29T16:00:00+04:00', endDate: '2026-11-29T18:00:00+04:00',
-    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode', eventStatus: 'https://schema.org/EventScheduled',
-    location: { '@type': 'Place', name: 'Al Hikmah Stationery', address: { '@type': 'PostalAddress', addressLocality: 'Sharjah', addressCountry: 'AE' }, geo: { '@type': 'GeoCoordinates', latitude: LAT, longitude: LNG } },
+    startDate: '2026-11-29T16:00:00+04:00',
+    endDate: '2026-11-29T21:00:00+04:00',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    eventStatus: 'https://schema.org/EventScheduled',
+    location: {
+      '@type': 'Place',
+      name: 'Al Hikmah Stationery',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Bu Tina · 9CC3+H26',
+        addressLocality: 'Sharjah',
+        addressCountry: 'AE',
+      },
+      geo: { '@type': 'GeoCoordinates', latitude: LAT, longitude: LNG },
+    },
     image: [SITE + '/og.jpg'],
-    organizer: { '@type': 'Organization', name: 'Al Hikmah Stationery', url: SITE, telephone: '+971503997597' },
+    organizer: {
+      '@type': 'Organization',
+      name: 'Al Hikmah Stationery',
+      url: SITE,
+      telephone: '+971503997597',
+      email: 'alhikmahstationary38@gmail.com',
+    },
   })} />
 </head>
 <body>
-  <a class="skip" href="#invitation">Skip to the invitation</a>
+  <a class="skip" href="#invitation">Skip to invitation</a>
 
-  <header class="hero" id="top">
-    <picture class="hero__pic">
-      <source media="(min-width: 768px)" type="image/avif" srcset={hero.wide.avif} sizes="100vw">
-      <source media="(min-width: 768px)" type="image/webp" srcset={hero.wide.webp} sizes="100vw">
-      <source type="image/avif" srcset={hero.tall.avif} sizes="100vw">
-      <source type="image/webp" srcset={hero.tall.webp} sizes="100vw">
-      <img src={hero.tall.jpg} width="1080" height="1935" alt="A gold satin ribbon tied in a bow beside an open gilt-edged notebook and a fountain pen on black marble" fetchpriority="high" decoding="async">
-    </picture>
-    <div class="hero__scrim" aria-hidden="true"></div>
-
-    <nav class="bar" aria-label="Main">
-      <a class="bar__mark" href="#top" aria-label="Al Hikmah Stationery, back to top">
-        <img src="/emblem-light.svg" width="98" height="66" alt="">
-      </a>
-      <ul class="bar__links">
-        <li><a href="#invitation">Invitation</a></li>
-        <li><a href="#departments">Departments</a></li>
-        <li><a href="#find-us">Find us</a></li>
-      </ul>
-      <a class="btn btn--paper bar__cta" href="#invitation" data-rsvp-jump>RSVP</a>
-    </nav>
-
-    <div class="hero__foot">
-      <div class="hero__row">
-        <div class="hero__copy" data-load style="--d:380ms">
-          <p class="hero__when">Grand opening, Sunday 29&nbsp;November at 4&nbsp;PM</p>
-          <p class="hero__lead">Our new stationery, office, printing and gifts store opens in Sharjah, and you’re invited.</p>
-        </div>
-        <div class="hero__count" data-load style="--d:460ms">
-          <p class="count" aria-live="off">
-            <span data-count-label>Opens in</span>
-            <span class="count__value" data-countdown>
-              <span><b data-d>10</b> days</span> <span><b data-h>0</b> h</span> <span><b data-m>0</b> m</span> <span><b data-s>0</b> s</span>
-            </span>
-          </p>
-        </div>
-      </div>
-      <h1 class="mono" aria-label="Al Hikmah Stationery" data-fit>
-        <span class="mono__line"><span class="mono__w" data-line style="--i:0">AL</span></span>
-        <span class="mono__win" aria-hidden="true">
-          {winPics.map((w, n) => <img src={w.src} width="360" height="450" alt="" loading="eager" decoding="async" style={`--n:${n}`}>)}
+  <!-- Sticky Frosted Ivory Header -->
+  <header class="nav">
+    <div class="nav__progress" aria-hidden="true"></div>
+    <div class="nav__inner">
+      <a class="brand" href="#top" aria-label="Al Hikmah Stationery — back to top">
+        <img class="brand__emblem" src="/emblem-dark.svg" width="44" height="30" alt="">
+        <span class="brand__text">
+          <span class="brand__name">Al Hikmah</span>
+          <span class="brand__sub">Stationery · Sharjah</span>
         </span>
-        <span class="mono__line"><span class="mono__w" data-line style="--i:1">HIKMAH</span></span>
-      </h1>
+      </a>
+
+      <nav aria-label="Primary navigation">
+        <ul class="nav__links">
+          <li><a href="#invitation">Invitation</a></li>
+          <li><a href="#program">Opening Day</a></li>
+          <li><a href="#departments">Collections</a></li>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#find-us">Location</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav__actions">
+        <button class="nav__share" type="button" data-share aria-label="Share this invitation" title="Share invitation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <path d="m8.6 13.5 6.8 4m0-11-6.8 4"/>
+          </svg>
+        </button>
+        <a class="btn btn--gold btn--sm" href="#rsvp" data-rsvp-jump>RSVP Now</a>
+        <button class="nav__toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-drawer" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main>
-    <section class="invite" id="invitation" aria-labelledby="invite-en">
-      <div class="invite__en" data-reveal-group>
-        <h2 class="h2" id="invite-en" data-reveal>You’re invited<span data-guest-en></span>.</h2>
-        <p class="invite__first" data-reveal>It would be our honour to welcome you to the grand opening of Al&nbsp;Hikmah Stationery.</p>
-        <p data-reveal>Al Hikmah means “wisdom”. Every good idea starts with a pen and a page, and we want to be the shop where Sharjah’s students, offices and families find both.</p>
-        <p data-reveal>Join us on <strong>Sunday 29 November 2026 at 4:00&nbsp;PM</strong>. Walk the shelves, meet the team and leave with something to write with.</p>
-      </div>
-
-      <div class="invite__ar" lang="ar" dir="rtl" data-reveal-group>
-        <h2 class="h2 h2--ar" data-reveal>دعوة <span data-guest-ar>لضيفنا الكريم</span></h2>
-        <p class="invite__first" data-reveal>يسعدنا ويشرفنا دعوتكم لحضور حفل الافتتاح الكبير لـ«الحكمة القرطاسية».</p>
-        <p data-reveal>الحكمة تبدأ بقلم وورقة، ونطمح أن نكون وجهتكم في الشارقة لكل ما يحتاجه الطلاب والمكاتب والعائلات.</p>
-        <p data-reveal>وذلك يوم <strong>الأحد ٢٩ نوفمبر ٢٠٢٦، الساعة الرابعة عصراً</strong>. حضوركم يسعدنا.</p>
-      </div>
-
-      <form class="rsvp" id="rsvp" action={`https://wa.me/${WA}`} method="get" target="_blank" data-reveal>
-        <h3 class="rsvp__title">Let us know you’re coming</h3>
-        <div class="rsvp__fields">
-          <label class="field">
-            <span class="field__label">Your name</span>
-            <input class="field__input" type="text" name="guest" autocomplete="name" placeholder="e.g. Fatima Al Mansoori…" maxlength="40" spellcheck="false" enterkeyhint="send">
-          </label>
-          <label class="field field--small">
-            <span class="field__label">Guests</span>
-            <select class="field__input" name="party">
-              <option value="1">Just me</option>
-              <option value="2">2 people</option>
-              <option value="3">3 people</option>
-              <option value="4">4 people</option>
-              <option value="5+">5 or more</option>
-            </select>
-          </label>
-          <input type="hidden" name="text" value={rsvpText}>
-          <button class="btn btn--gold rsvp__send" type="submit">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-            Reply on WhatsApp
-          </button>
-        </div>
-        <p class="rsvp__more">
-          <a class="link" href={gcal} target="_blank" rel="noopener">Add to Google Calendar</a>
-          <a class="link" href="/al-hikmah-grand-opening.ics" download>Add to Apple / Outlook</a>
-          <button class="link link--btn" type="button" data-share>Share this invitation</button>
-        </p>
-      </form>
-    </section>
-
-    <section class="depts" id="departments" aria-labelledby="depts-title">
-      <h2 class="h2 depts__title" id="depts-title" data-reveal>What’s on our shelves</h2>
-      <ul class="lineup" role="list">
-        {departments.map((d, n) => (
-          <li class="lineup__row" data-row style={`--i:${n}`}>
-            <span class="lineup__en">{d.en}</span>
-            <span class="lineup__what">{d.shelves}</span>
-            <span class="lineup__ar" lang="ar" dir="rtl">{d.ar}</span>
-          </li>
-        ))}
+  <!-- Mobile Navigation Drawer -->
+  <div class="drawer" id="mobile-drawer" aria-hidden="true">
+    <nav aria-label="Mobile menu">
+      <ul class="drawer__list">
+        <li><a class="drawer__link" href="#invitation"><span>Invitation</span><span lang="ar" dir="rtl">الدعوة</span></a></li>
+        <li><a class="drawer__link" href="#program"><span>Opening Day</span><span lang="ar" dir="rtl">البرنامج</span></a></li>
+        <li><a class="drawer__link" href="#departments"><span>Collections</span><span lang="ar" dir="rtl">الأقسام</span></a></li>
+        <li><a class="drawer__link" href="#gallery"><span>Gallery</span><span lang="ar" dir="rtl">المعرض</span></a></li>
+        <li><a class="drawer__link" href="#find-us"><span>Location</span><span lang="ar" dir="rtl">الموقع</span></a></li>
       </ul>
-      <div class="shelf">
-        {departments.map((d, n) => (
-          <figure class="shelf__item" data-shutter style={`--i:${n}`}>
-            <div class="shelf__frame">
-              <picture>
-                <source type="image/avif" srcset={deptPics[n].avif} sizes="(min-width: 768px) 50vw, 100vw">
-                <source type="image/webp" srcset={deptPics[n].webp} sizes="(min-width: 768px) 50vw, 100vw">
-                <img src={deptPics[n].jpg} width="720" height="900" alt={d.alt} loading="lazy" decoding="async">
-              </picture>
-            </div>
-            <figcaption>{d.en} <span lang="ar" dir="rtl">{d.ar}</span></figcaption>
-          </figure>
-        ))}
-      </div>
-    </section>
+    </nav>
+    <div class="drawer__actions">
+      <a class="btn btn--gold" href="#rsvp" data-rsvp-jump>Confirm Attendance (RSVP)</a>
+      <a class="btn btn--outline" href={directions} target="_blank" rel="noopener">Open in Google Maps</a>
+      <a class="btn btn--outline" href={gcal} target="_blank" rel="noopener">Add to Google Calendar</a>
+      <p class="drawer__meta">Sunday, 29 November 2026 · 4:00 PM · Sharjah, UAE</p>
+    </div>
+  </div>
 
-    <section class="find" id="find-us" aria-labelledby="find-title">
-      <div class="find__top">
-        <h2 class="h2" id="find-title" data-reveal>Find us in Sharjah</h2>
-        <div class="find__aside" data-reveal>
-          <p class="find__lead">Directions, questions, or a bulk order for your school or office: message us on WhatsApp any time.</p>
-          <a class="btn btn--ink" href={directions} target="_blank" rel="noopener">Get directions</a>
-          <p class="find__code">Plus code <span translate="no">9CC3+H26</span>, Sharjah, United Arab Emirates</p>
+  <main>
+    <!-- Hero Section -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero__bg" aria-hidden="true">
+        <picture>
+          <source type="image/avif" srcset={heroBgPic.avif} sizes="100vw">
+          <source type="image/webp" srcset={heroBgPic.webp} sizes="100vw">
+          <img class="hero__bg-img" src={heroBgPic.jpg} width="1920" height="1080" alt="" decoding="async">
+        </picture>
+        <div class="hero__veil"></div>
+      </div>
+      <div class="hero__frame" aria-hidden="true"></div>
+
+      <div class="wrap hero__grid">
+        <div class="hero__copy">
+          <div class="hero__pill" data-hero-anim style="--d:60ms">
+            <span class="eyebrow__dot" aria-hidden="true"></span>
+            <span>Grand Opening Invitation</span>
+            <span lang="ar" dir="rtl">حفل الافتتاح الكبير</span>
+          </div>
+
+          <p class="hero__kicker" data-hero-anim style="--d:130ms">You are cordially invited to our</p>
+
+          <h1 class="hero__title" id="hero-title" data-hero-anim style="--d:190ms">
+            Al Hikmah
+            <span class="hero__title-sub">Stationery · For Selling Tools</span>
+            <span class="hero__title-ar" lang="ar" dir="rtl">الحكمة القرطاسية</span>
+          </h1>
+
+          <p class="hero__desc" data-hero-anim style="--d:250ms">
+            Wisdom begins with a pen and a page. Join us in Sharjah as we open our doors for fine stationery, office supplies, printing essentials, and curated gifts.
+          </p>
+
+          <!-- Date Plaque (Ivory Poster DNA) -->
+          <div class="date-plaque" data-hero-anim style="--d:310ms">
+            <div class="date-plaque__side">Sunday</div>
+            <div class="date-plaque__mid">
+              <span class="date-plaque__day">29</span>
+              <span class="date-plaque__month">Nov 2026</span>
+            </div>
+            <div class="date-plaque__side">4:00 PM</div>
+            <div class="date-plaque__meta">
+              <span>Sharjah, UAE (9CC3+H26)</span>
+              <span aria-hidden="true">·</span>
+              <span lang="ar" dir="rtl">الأحد ٢٩ نوفمبر ٢٠٢٦ · ٤:٠٠ عصراً</span>
+            </div>
+          </div>
+
+          <!-- Live Countdown -->
+          <div class="countdown" data-hero-anim style="--d:370ms">
+            <div class="countdown__head">
+              <span data-count-label>Countdown to Doors Open</span>
+              <span lang="ar" dir="rtl">العد التنازلي للافتتاح</span>
+            </div>
+            <div class="countdown__grid" data-countdown aria-live="off">
+              <div class="countdown__tile"><span class="countdown__num" data-d>10</span><span class="countdown__unit">Days</span></div>
+              <div class="countdown__tile"><span class="countdown__num" data-h>00</span><span class="countdown__unit">Hours</span></div>
+              <div class="countdown__tile"><span class="countdown__num" data-m>00</span><span class="countdown__unit">Minutes</span></div>
+              <div class="countdown__tile"><span class="countdown__num" data-s>00</span><span class="countdown__unit">Seconds</span></div>
+            </div>
+          </div>
+
+          <!-- Hero Actions -->
+          <div class="hero__cta" data-hero-anim style="--d:430ms">
+            <a class="btn btn--gold" href="#rsvp" data-rsvp-jump>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>
+              </svg>
+              Confirm Attendance (RSVP)
+            </a>
+
+            <div class="cal-drop" data-cal-drop>
+              <button class="btn btn--outline" type="button" data-cal-btn aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                </svg>
+                Save the Date
+              </button>
+              <div class="cal-menu" role="menu">
+                <a href={gcal} target="_blank" rel="noopener" role="menuitem">
+                  <span>Google Calendar</span><span>↗</span>
+                </a>
+                <a href="/al-hikmah-grand-opening.ics" download role="menuitem">
+                  <span>Apple / Outlook (.ics)</span><span>↓</span>
+                </a>
+              </div>
+            </div>
+
+            <a class="text-link" href="#find-us">View Sharjah Map →</a>
+          </div>
+        </div>
+
+        <!-- Layered Sunlit Editorial Visuals -->
+        <div class="hero__visual" data-hero-photo>
+          <div class="hero__card-main" data-parallax>
+            <span class="hero__stamp">Sharjah · Opening Day</span>
+            <picture>
+              <source media="(max-width: 1023px)" type="image/avif" srcset={heroBgPic.avif} sizes="92vw">
+              <source media="(max-width: 1023px)" type="image/webp" srcset={heroBgPic.webp} sizes="92vw">
+              <source type="image/avif" srcset={heroCardPic.avif} sizes="470px">
+              <source type="image/webp" srcset={heroCardPic.webp} sizes="470px">
+              <img src={heroCardPic.jpg} width="820" height="1093" alt="Open gilt-edged ivory notebook with fountain pen, brass ruler and champagne satin bow on sunlit travertine" fetchpriority="high" decoding="async">
+            </picture>
+          </div>
+          <div class="hero__card-float" data-parallax>
+            <picture>
+              <source type="image/avif" srcset={hospPic.avif} sizes="225px">
+              <source type="image/webp" srcset={hospPic.webp} sizes="225px">
+              <img src={hospPic.jpg} width="480" height="640" alt="Arabic coffee dallah, dates, guestbook and ceremonial satin ribbon prepared for guests" loading="eager" decoding="async">
+            </picture>
+            <div class="hero__card-cap">
+              <span>Arabic Hospitality</span>
+              <span lang="ar" dir="rtl">قهوة وضيافة</span>
+            </div>
+          </div>
         </div>
       </div>
-      <figure class="find__map" data-reveal>
-        <iframe src={mapEmbed} title="Map showing Al Hikmah Stationery in Sharjah" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
-      </figure>
-      <a class="find__number" href={`https://wa.me/${WA}`} target="_blank" rel="noopener" aria-label="Message Al Hikmah on WhatsApp: 050 399 7597" data-fit>
-        <span>050&nbsp;399&nbsp;7597</span>
-      </a>
-      <div class="find__corners">
-        <p>Call <a class="link" href="tel:+971564245208">056&nbsp;424&nbsp;5208</a><br>Sharjah, United Arab Emirates</p>
-        <p class="find__social"><a class="link" href="https://www.instagram.com/alhikmah.stationery/" target="_blank" rel="noopener">Instagram @alhikmah.stationery</a><br><a class="link" href="mailto:alhikmahstationary38@gmail.com" translate="no">alhikmahstationary38@gmail.com</a></p>
+    </section>
+
+    <!-- Section 2: Formal Bilingual Invitation Letter & Visual Story -->
+    <section class="invite" id="invitation" aria-labelledby="invite-heading">
+      <div class="wrap">
+        <div class="invite-suite" data-reveal>
+          <div class="invite-suite__grid">
+            <div class="invite-letter" data-reveal-group>
+              <span class="eyebrow" data-reveal><span class="eyebrow__dot" aria-hidden="true"></span> Official Invitation</span>
+              <h2 class="invite-letter__salutation" id="invite-heading" data-reveal>
+                Dear <span data-guest-en>Honoured Guest</span>,
+              </h2>
+              <p class="invite-letter__lead" data-reveal>
+                It is with great warmth and pride that we invite you to celebrate the Grand Opening of Al Hikmah Stationery in Sharjah.
+              </p>
+              <p data-reveal>
+                <em>Al Hikmah</em> means “wisdom.” Every classroom triumph, architectural sketch, and thriving office begins with thoughtful tools on paper. We have curated four complete wings under one sunlit roof — fine writing &amp; student stationery, archival office supplies, all printing products, and memorable gifts.
+              </p>
+              <p data-reveal>
+                Join us on <strong>Sunday, 29 November 2026 at 4:00 PM</strong> for the ribbon cutting, traditional Arabic coffee and dates, and an afternoon exploring our shelves with family, neighbours and colleagues.
+              </p>
+              <p class="invite-letter__sign" data-reveal>
+                Warmly awaiting your presence,<br>The Al Hikmah Stationery Team
+              </p>
+            </div>
+
+            <div class="invite-letter invite-letter--ar" lang="ar" dir="rtl" data-reveal-group>
+              <span class="eyebrow" data-reveal><span class="eyebrow__dot" aria-hidden="true"></span> <span class="eyebrow__ar">بطاقة دعوة رسمية</span></span>
+              <h2 class="invite-letter__salutation invite-letter__salutation--ar" data-reveal>
+                دعوة خاصة <span data-guest-ar>لضيفنا الكريم</span>
+              </h2>
+              <p class="invite-letter__lead" data-reveal>
+                يسعدنا ويشرفنا دعوتكم لحضور حفل الافتتاح الكبير لـ «الحكمة القرطاسية» في الشارقة.
+              </p>
+              <p data-reveal>
+                لأن الحكمة تبدأ بقلم وورقة، أعددنا لكم وجهة متكاملة تجمع بين أدوات الكتابة الراقية ومستلزمات المدارس والمكاتب وجميع منتجات الطباعة والهدايا المختارة بعناية، لتلبي احتياجات الطلاب والعائلات والشركات تحت سقف واحد.
+              </p>
+              <p data-reveal>
+                نتشرف باستقبالكم يوم <strong>الأحد ٢٩ نوفمبر ٢٠٢٦، الساعة الرابعة عصراً</strong>، لحضور قص الشريط وتناول القهوة العربية والتجول بين أرفف المكتبة. حضوركم يسعدنا ويزيد حفلنا بهجة.
+              </p>
+              <p class="invite-letter__sign" data-reveal>
+                مع خالص الترحيب والتقدير،<br>أسرة الحكمة القرطاسية
+              </p>
+            </div>
+          </div>
+
+          <div class="orn" style="margin-top: clamp(28px, 3.5vw, 42px);" aria-hidden="true">
+            <span class="orn__line" data-rule></span>
+            <span class="orn__gem"></span>
+            <span class="orn__line" data-rule></span>
+          </div>
+
+          <!-- Editorial Photo Pair -->
+          <div class="invite-photos">
+            <figure class="photo-card invite-photos__main" data-reveal-photo data-parallax>
+              <div class="photo-card__frame">
+                <picture>
+                  <source type="image/avif" srcset={boutiquePic.avif} sizes="(max-width: 767px) 92vw, 55vw">
+                  <source type="image/webp" srcset={boutiquePic.webp} sizes="(max-width: 767px) 92vw, 55vw">
+                  <img src={boutiquePic.jpg} width="860" height="1146" alt="Sunlit pale oak and limestone shelves inside Al Hikmah Stationery displaying notebooks, fountain pens and archival files" loading="lazy" decoding="async">
+                </picture>
+              </div>
+              <figcaption class="photo-card__cap">
+                <span>Inside our sunlit Sharjah boutique — crafted for clarity and calm</span>
+                <span lang="ar" dir="rtl">رفوف الحكمة القرطاسية</span>
+              </figcaption>
+            </figure>
+
+            <figure class="photo-card invite-photos__side" data-reveal-photo data-parallax>
+              <div class="photo-card__frame">
+                <picture>
+                  <source type="image/avif" srcset={hospPic.avif} sizes="(max-width: 767px) 92vw, 38vw">
+                  <source type="image/webp" srcset={hospPic.webp} sizes="(max-width: 767px) 92vw, 38vw">
+                  <img src={hospPic.jpg} width="760" height="1013" alt="Ceremonial champagne ribbon, open cream guestbook and Arabic coffee dallah ready to welcome guests" loading="lazy" decoding="async">
+                </picture>
+              </div>
+              <figcaption class="photo-card__cap">
+                <span>Qahwa, dates &amp; the opening guestbook</span>
+                <span lang="ar" dir="rtl">ضيافة الافتتاح</span>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="reply" id="reply" aria-labelledby="reply-word">
-      <a class="reply__band" href={waRsvp} target="_blank" rel="noopener" data-rsvp-link>
-        <span class="reply__note">Coming on Sunday? Tell us on WhatsApp and we’ll save you a welcome.</span>
-        <svg class="reply__arrow" viewBox="0 0 48 48" aria-hidden="true"><path d="M14 34 34 14M17 14h17v17" fill="none" stroke="currentColor" stroke-width="3"/></svg>
-        <span class="reply__word" id="reply-word">Reply</span>
-      </a>
+    <!-- Section 3: Opening Day Program & Privileges -->
+    <section class="program" id="program" aria-labelledby="program-title">
+      <div class="wrap">
+        <div class="section-head section-head--split" data-reveal-group>
+          <div>
+            <span class="eyebrow" data-reveal><span class="eyebrow__dot" aria-hidden="true"></span> Opening Afternoon · Sunday 29 Nov 2026</span>
+            <h2 class="h2" id="program-title" data-reveal>
+              What awaits you on <em>Opening Day</em>
+              <span class="h2__ar" lang="ar" dir="rtl">برنامج حفل الافتتاح</span>
+            </h2>
+          </div>
+          <p class="lead" data-reveal>
+            Arrive from 4:00 PM for the ribbon cutting and stay through the evening for warm hospitality, curated discovery, and opening-day keepsakes.
+          </p>
+        </div>
+
+        <div class="timeline" data-timeline data-reveal-group>
+          <div class="timeline__track" aria-hidden="true">
+            <div class="timeline__fill"></div>
+          </div>
+          {programSteps.map((s, i) => (
+            <article class="step" data-reveal style={`--i:${i}`}>
+              <span class="step__dot" aria-hidden="true"></span>
+              <span class="step__time">{s.time}</span>
+              <h3 class="step__title">{s.en}</h3>
+              <p class="step__ar" lang="ar" dir="rtl">{s.ar}</p>
+              <p class="step__desc">{s.desc}</p>
+            </article>
+          ))}
+        </div>
+
+        <div class="highlights" data-reveal-group>
+          <div class="highlight-pill" data-reveal>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+            <span>Arabic Qahwa &amp; Dates Served</span>
+          </div>
+          <div class="highlight-pill" data-reveal>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            <span>Opening Day Keepsake Token</span>
+          </div>
+          <div class="highlight-pill" data-reveal>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Families, Students &amp; Offices Welcome</span>
+          </div>
+          <div class="highlight-pill" data-reveal>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Bu Tina, Sharjah (9CC3+H26)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Four Curated Collections / Departments -->
+    <section class="depts" id="departments" aria-labelledby="depts-title">
+      <div class="wrap">
+        <div class="section-head section-head--split" data-reveal-group>
+          <div>
+            <span class="eyebrow" data-reveal><span class="eyebrow__dot" aria-hidden="true"></span> Four Wings Under One Roof</span>
+            <h2 class="h2" id="depts-title" data-reveal>
+              What’s on <em>our shelves</em>
+              <span class="h2__ar" lang="ar" dir="rtl">أقسام المكتبة واللوازم</span>
+            </h2>
+          </div>
+          <p class="lead" data-reveal>
+            From everyday school essentials to archival office files, genuine printing consumables, and champagne-wrapped gift sets.
+          </p>
+        </div>
+
+        <div class="dept-grid">
+          {departments.map((d, n) => (
+            <article class="dept-card" data-reveal style={`--i:${n % 2}`}>
+              <div
+                class="dept-card__media"
+                role="button"
+                tabindex="0"
+                aria-label={`View larger image: ${d.en}`}
+                data-reveal-photo
+                data-lightbox-item
+                data-full={deptPics[n].jpg}
+                data-en={d.en}
+                data-ar={d.ar}
+              >
+                <span class="dept-card__num">DEPT {d.num}</span>
+                <picture>
+                  <source type="image/avif" srcset={deptPics[n].avif} sizes="(max-width: 767px) 92vw, 46vw">
+                  <source type="image/webp" srcset={deptPics[n].webp} sizes="(max-width: 767px) 92vw, 46vw">
+                  <img src={deptPics[n].jpg} width="760" height="1013" alt={d.alt} loading="lazy" decoding="async">
+                </picture>
+              </div>
+              <div class="dept-card__body">
+                <div class="dept-card__head">
+                  <h3 class="dept-card__title">{d.en}</h3>
+                  <span class="dept-card__ar" lang="ar" dir="rtl">{d.ar}</span>
+                </div>
+                <p class="dept-card__desc">{d.desc}</p>
+                <div class="dept-card__tags">
+                  {d.tags.map((t) => <span>{t}</span>)}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Visual Lookbook Gallery -->
+    <section class="gallery" id="gallery" aria-labelledby="gallery-title">
+      <div class="wrap">
+        <div class="section-head section-head--center" data-reveal-group>
+          <span class="eyebrow" data-reveal><span class="eyebrow__dot" aria-hidden="true"></span> Visual Preview <span class="eyebrow__dot" aria-hidden="true"></span></span>
+          <h2 class="h2" id="gallery-title" data-reveal>
+            A closer look at <em>Al Hikmah</em>
+            <span class="h2__ar" lang="ar" dir="rtl">لمحة من تفاصيل وأدوات الحكمة</span>
+          </h2>
+          <p class="lead" data-reveal>
+            Tap any photograph to inspect our fine writing instruments, artist materials, gift wrapping, and sunlit store details.
+          </p>
+        </div>
+
+        <div class="gallery__grid">
+          {galleryItems.map((item, idx) => (
+            <figure
+              class={`gal-item ${item.cls}`}
+              role="button"
+              tabindex="0"
+              aria-label={`Open gallery view: ${item.en}`}
+              data-reveal-photo
+              data-lightbox-item
+              data-full={galleryPics[idx].jpg}
+              data-en={item.en}
+              data-ar={item.ar}
+              style={`--i:${idx % 3}`}
+            >
+              <div class="gal-item__frame">
+                <picture>
+                  <source type="image/avif" srcset={galleryPics[idx].avif} sizes="(max-width: 767px) 48vw, 35vw">
+                  <source type="image/webp" srcset={galleryPics[idx].webp} sizes="(max-width: 767px) 48vw, 35vw">
+                  <img src={galleryPics[idx].jpg} width="820" height="820" alt={item.alt} loading="lazy" decoding="async">
+                </picture>
+                <span class="gal-item__zoom" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/>
+                  </svg>
+                </span>
+              </div>
+              <figcaption>
+                <span>{item.en}</span>
+                <span lang="ar" dir="rtl">{item.ar}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Interactive RSVP & Live Keepsake Digital Invitation Pass -->
+    <section class="rsvp-sec" id="rsvp" aria-labelledby="rsvp-title">
+      <div class="wrap">
+        <div class="section-head section-head--split" data-reveal-group>
+          <div>
+            <span class="eyebrow" data-reveal><span class="eyebrow__dot" aria-hidden="true"></span> Confirm Your Presence</span>
+            <h2 class="h2" id="rsvp-title" data-reveal>
+              RSVP &amp; <em>Digital Invitation Pass</em>
+              <span class="h2__ar" lang="ar" dir="rtl">تأكيد الحضور وبطاقة الدعوة</span>
+            </h2>
+          </div>
+          <p class="lead" data-reveal>
+            Enter your name to personalise the invitation above and generate your live digital keepsake pass, or send your RSVP in one tap via WhatsApp.
+          </p>
+        </div>
+
+        <div class="rsvp-layout">
+          <div class="rsvp-box" data-reveal>
+            <form class="rsvp-form" id="rsvp-form">
+              <div class="rsvp-form__row">
+                <label class="field">
+                  <span class="field__label">Guest / Family Name</span>
+                  <input class="field__input" type="text" name="guest" autocomplete="name" placeholder="e.g. Fatima Al Mansoori" maxlength="48" spellcheck="false" enterkeyhint="send">
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Party Size</span>
+                  <select class="field__input" name="party">
+                    <option value="1">Just me (1)</option>
+                    <option value="2">2 Guests</option>
+                    <option value="3">3 Guests</option>
+                    <option value="4">4 Guests</option>
+                    <option value="5+">5 or more</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="field">
+                <span class="field__label">Attending As</span>
+                <div class="chip-group" role="group" aria-label="Guest category">
+                  <button class="chip is-active" type="button" data-guest-type="Family & Friends" aria-pressed="true">Family &amp; Friends</button>
+                  <button class="chip" type="button" data-guest-type="Student / Educator" aria-pressed="false">Student / Educator</button>
+                  <button class="chip" type="button" data-guest-type="Office / Corporate" aria-pressed="false">Office / Business</button>
+                  <button class="chip" type="button" data-guest-type="Creative / Artist" aria-pressed="false">Artist &amp; Calligraphy</button>
+                </div>
+              </div>
+
+              <label class="field">
+                <span class="field__label">Optional Note (Arrival time or enquiry)</span>
+                <input class="field__input" type="text" name="note" placeholder="e.g. Arriving around 4:30 PM with family" maxlength="80">
+              </label>
+
+              <div class="rsvp-confirmed" data-rsvp-confirmed role="status" aria-live="polite"></div>
+
+              <div class="rsvp-actions">
+                <button class="btn btn--gold" type="submit">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                  Reply on WhatsApp (050 399 7597)
+                </button>
+              </div>
+            </form>
+
+            <div class="rsvp-tools">
+              <a class="text-link" href={gcal} target="_blank" rel="noopener">Add to Google Calendar</a>
+              <a class="text-link" href="/al-hikmah-grand-opening.ics" download>Apple / Outlook (.ics)</a>
+              <button class="text-link" type="button" data-copy-invite>Copy Personalised Link</button>
+              <button class="text-link" type="button" data-share>Share Invite</button>
+            </div>
+          </div>
+
+          <!-- Live Keepsake Digital Invitation Pass -->
+          <aside class="pass" aria-label="Live digital invitation card preview" data-reveal>
+            <div class="pass__top">
+              <img class="pass__emblem" src="/emblem-dark.svg" width="52" height="35" alt="Al Hikmah emblem">
+              <div class="pass__badge">
+                Grand Opening Pass
+                <span lang="ar" dir="rtl">بطاقة حضور الافتتاح</span>
+              </div>
+            </div>
+
+            <div class="pass__guest">
+              <span class="pass__label">Cordially Inviting</span>
+              <p class="pass__name" data-pass-name>Honoured Guest</p>
+              <p class="pass__meta-line" data-pass-meta>Admit 1 Honoured Guest · Family &amp; Friends</p>
+            </div>
+
+            <div class="pass__details">
+              <div>
+                <span class="pass__label">Date</span>
+                <strong>Sun, 29 Nov 2026</strong>
+              </div>
+              <div>
+                <span class="pass__label">Time</span>
+                <strong>4:00 PM GST</strong>
+              </div>
+              <div>
+                <span class="pass__label">Location</span>
+                <strong>Sharjah · 9CC3+H26</strong>
+              </div>
+            </div>
+
+            <div class="pass__foot">
+              <div class="pass__qr">
+                <img src="/qr-dark.svg" width="74" height="74" alt="QR code for Al Hikmah Stationery invitation and Google Maps location">
+              </div>
+              <div class="pass__qr-text">
+                <strong>Scan for Invitation &amp; Map</strong>
+                <span>Present or share this digital invitation with family &amp; colleagues.</span>
+                <span lang="ar" dir="rtl">امسح للدعوة والموقع · الشارقة</span>
+              </div>
+            </div>
+
+            <div class="pass__print-row">
+              <span class="pass__label">Ref: AH-SHJ-2026</span>
+              <button class="btn btn--outline btn--sm" type="button" data-print-pass>Save / Print Card</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: Location, Sharjah Map & Direct Contact -->
+    <section class="find" id="find-us" aria-labelledby="find-title">
+      <div class="wrap">
+        <div class="section-head section-head--split" data-reveal-group>
+          <div>
+            <span class="eyebrow" data-reveal><span class="eyebrow__dot" aria-hidden="true"></span> Visit Us on Opening Day</span>
+            <h2 class="h2" id="find-title" data-reveal>
+              Find us in <em>Sharjah</em>
+              <span class="h2__ar" lang="ar" dir="rtl">موقعنا في الشارقة</span>
+            </h2>
+          </div>
+          <p class="lead" data-reveal>
+            Directions, arrival guidance, or enquiries for schools, offices and bulk stationery orders — reach us any time.
+          </p>
+        </div>
+
+        <div class="find__grid">
+          <div class="find__info">
+            <div class="venue-card" data-reveal>
+              <span class="eyebrow"><span class="eyebrow__dot" aria-hidden="true"></span> Store Venue</span>
+              <p class="venue-card__addr">
+                Al Hikmah Stationery<br>
+                Bu Tina District · Sharjah, UAE
+              </p>
+              <p class="venue-card__coords">
+                Plus Code: <strong translate="no">9CC3+H26</strong> &nbsp;·&nbsp; GPS: 25°22'17.1"N 55°24'09.1"E
+              </p>
+              <div class="venue-card__btns">
+                <a class="btn btn--gold" href={directions} target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+                  </svg>
+                  Get Directions
+                </a>
+                <button class="btn btn--outline" type="button" data-copy-code>Copy Plus Code</button>
+              </div>
+            </div>
+
+            <div class="contact-grid" data-reveal-group>
+              <a class="contact-tile" href={waRsvp} target="_blank" rel="noopener" data-rsvp-link data-reveal>
+                <span class="contact-tile__k">WhatsApp RSVP</span>
+                <span class="contact-tile__v">050 399 7597</span>
+              </a>
+              <a class="contact-tile" href="tel:+971564245208" data-reveal>
+                <span class="contact-tile__k">Phone Call</span>
+                <span class="contact-tile__v">056 424 5208</span>
+              </a>
+              <a class="contact-tile" href="https://www.instagram.com/alhikmah.stationery/" target="_blank" rel="noopener" data-reveal>
+                <span class="contact-tile__k">Instagram</span>
+                <span class="contact-tile__v">@alhikmah.stationery</span>
+              </a>
+              <a class="contact-tile" href="mailto:alhikmahstationary38@gmail.com" data-reveal>
+                <span class="contact-tile__k">Email</span>
+                <span class="contact-tile__v" translate="no">alhikmahstationary38@gmail.com</span>
+              </a>
+            </div>
+          </div>
+
+          <figure class="find__map-box" data-reveal-photo>
+            <iframe
+              src={mapEmbed}
+              title="Interactive map showing Al Hikmah Stationery in Sharjah, UAE (9CC3+H26)"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen>
+            </iframe>
+            <figcaption class="find__map-bar">
+              <span>9CC3+H26 Sharjah · United Arab Emirates · <a class="text-link" href={mapPlace} target="_blank" rel="noopener">Open Full Map ↗</a></span>
+              <span lang="ar" dir="rtl">الشارقة · الإمارات العربية المتحدة</span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
     </section>
   </main>
 
+  <!-- Warm Ivory Light Footer -->
   <footer class="foot">
-    <div class="foot__cols">
-      <div>
-        <h2 class="foot__h">Visit</h2>
-        <p>Al Hikmah Stationery<br>Sharjah, UAE<br><a class="link" href={directions} target="_blank" rel="noopener">Directions</a></p>
+    <div class="wrap">
+      <div class="foot__top">
+        <div class="foot__brand">
+          <img class="foot__logo" src="/logo-dark.svg" width="195" height="146" alt="Al Hikmah Stationery logo">
+          <p class="foot__tagline">
+            Al Hikmah Stationery — For Selling Tools. Fine writing, student essentials, office files, printing products &amp; curated gifts in Sharjah, UAE.
+          </p>
+        </div>
+
+        <div class="foot__col">
+          <h3>Grand Opening</h3>
+          <ul>
+            <li>Sunday, 29 November 2026</li>
+            <li>4:00 PM onwards</li>
+            <li><a href={gcal} target="_blank" rel="noopener">Add to Google Calendar</a></li>
+            <li><a href="/al-hikmah-grand-opening.ics" download>Download Calendar (.ics)</a></li>
+          </ul>
+        </div>
+
+        <div class="foot__col">
+          <h3>Connect</h3>
+          <ul>
+            <li><a href={waRsvp} target="_blank" rel="noopener" data-rsvp-link>WhatsApp: 050 399 7597</a></li>
+            <li><a href="tel:+971564245208">Phone: 056 424 5208</a></li>
+            <li><a href="https://www.instagram.com/alhikmah.stationery/" target="_blank" rel="noopener">Instagram @alhikmah.stationery</a></li>
+            <li><a href="mailto:alhikmahstationary38@gmail.com" translate="no">alhikmahstationary38@gmail.com</a></li>
+          </ul>
+        </div>
+
+        <div class="foot__col">
+          <h3>Explore</h3>
+          <ul>
+            <li><a href="#invitation">Invitation Card</a></li>
+            <li><a href="#program">Opening Program</a></li>
+            <li><a href="#departments">Store Collections</a></li>
+            <li><a href="#gallery">Visual Lookbook</a></li>
+            <li><a href={directions} target="_blank" rel="noopener">Sharjah Directions</a></li>
+          </ul>
+        </div>
       </div>
-      <div>
-        <h2 class="foot__h">Opening</h2>
-        <p>Sunday 29 November 2026<br>4:00 PM<br><a class="link" href={gcal} target="_blank" rel="noopener">Add to calendar</a></p>
+
+      <div class="foot__bottom">
+        <span>© 2026 Al Hikmah Stationery · Sharjah, United Arab Emirates (9CC3+H26)</span>
+        <span lang="ar" dir="rtl">الحكمة القرطاسية لبيع أدوات · الشارقة</span>
       </div>
-      <div>
-        <h2 class="foot__h">Talk to us</h2>
-        <p><a class="link" href={`https://wa.me/${WA}`} target="_blank" rel="noopener">WhatsApp 050&nbsp;399&nbsp;7597</a><br><a class="link" href="tel:+971564245208">Call 056&nbsp;424&nbsp;5208</a></p>
-      </div>
-      <div>
-        <h2 class="foot__h">Follow</h2>
-        <p><a class="link" href="https://www.instagram.com/alhikmah.stationery/" target="_blank" rel="noopener">Instagram</a><br><span lang="ar" dir="rtl">الحكمة القرطاسية</span></p>
-      </div>
-    </div>
-    <div class="foot__mark">
-      <p class="foot__word" data-fit>AL HIKMAH</p>
-      <p class="foot__legal">© 2026 Al Hikmah Stationery, Sharjah. Pictures generated for Al Hikmah.</p>
     </div>
   </footer>
 
+  <!-- Mobile Sticky Bottom Quick-Action Dock -->
+  <div class="mob-dock" data-mob-dock aria-label="Quick invitation actions">
+    <a class="mob-dock__btn mob-dock__btn--primary" href="#rsvp" data-rsvp-jump>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+      RSVP
+    </a>
+    <a class="mob-dock__btn" href={directions} target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+      Map
+    </a>
+    <a class="mob-dock__btn" href="tel:+971564245208">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Call
+    </a>
+  </div>
+
+  <!-- Interactive Lightbox Modal -->
+  <div class="lightbox" data-lightbox role="dialog" aria-modal="true" aria-hidden="true" aria-label="Image preview">
+    <div class="lightbox__bar">
+      <span class="lightbox__count" data-lb-count>01 / 08</span>
+      <button class="lightbox__close" type="button" data-lb-close aria-label="Close image preview">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="lightbox__stage">
+      <button class="lightbox__nav" type="button" data-lb-prev aria-label="Previous image">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="lightbox__img-wrap">
+        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" data-lb-img>
+      </div>
+      <button class="lightbox__nav" type="button" data-lb-next aria-label="Next image">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+    <div class="lightbox__cap">
+      <p data-lb-en></p>
+      <span lang="ar" dir="rtl" data-lb-ar></span>
+    </div>
+  </div>
+
+  <!-- Live Toast -->
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+
   <script>
-    import './../scripts/main.js';
+    import '../scripts/main.js';
   </script>
 </body>
 </html>
