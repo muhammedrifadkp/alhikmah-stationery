@@ -1,0 +1,268 @@
+---
+import { getImage } from 'astro:assets';
+import '../styles/site.css';
+
+import heroPortrait from '../assets/img/hero-portrait.jpg';
+import heroLandscape from '../assets/img/hero-landscape.jpg';
+import deptStationery from '../assets/img/dept-stationery.jpg';
+import deptOffice from '../assets/img/dept-office.jpg';
+import deptPrinting from '../assets/img/dept-printing.jpg';
+import deptGifts from '../assets/img/dept-gifts.jpg';
+
+const SITE = 'https://alhikmah-stationery.vercel.app';
+const WA = '971503997597';
+const LAT = 25.3714104;
+const LNG = 55.4025383;
+
+// Responsive image helper: one set of widths per format.
+async function set(src: ImageMetadata, widths: number[], format: 'avif' | 'webp' | 'jpeg') {
+  const imgs = await Promise.all(widths.map((w) => getImage({ src, width: w, format, quality: format === 'avif' ? 55 : 72 })));
+  return imgs.map((i, n) => `${i.src} ${widths[n]}w`).join(', ');
+}
+async function pic(src: ImageMetadata, widths: number[]) {
+  const fallback = await getImage({ src, width: widths[Math.min(1, widths.length - 1)], format: 'jpeg', quality: 72 });
+  return { avif: await set(src, widths, 'avif'), webp: await set(src, widths, 'webp'), jpg: fallback.src };
+}
+
+const hero = {
+  wide: await pic(heroLandscape, [960, 1440, 1920]),
+  tall: await pic(heroPortrait, [480, 750, 1080]),
+};
+
+const departments = [
+  { id: 'stationery', en: 'Stationery', ar: 'القرطاسية', shelves: 'Pens, pencils, notebooks, colours, art and geometry sets', img: deptStationery, alt: 'Coloured pencils, a brass ruler and gold paper clips on ivory paper' },
+  { id: 'office', en: 'File & office supplies', ar: 'الملفات واللوازم المكتبية', shelves: 'Box files, folders, staplers, A4 paper, desk organisers', img: deptOffice, alt: 'An open gilt-edged notebook and a fountain pen on black marble' },
+  { id: 'printing', en: 'All printing products', ar: 'مستلزمات الطباعة', shelves: 'Printer ink, toner, photo paper, labels', img: deptPrinting, alt: 'A black fountain pen and a brass ruler beside a gold-edged notebook' },
+  { id: 'gifts', en: 'Gifts & more', ar: 'الهدايا والمزيد', shelves: 'Gift pens, gift sets, wrapping, occasion items', img: deptGifts, alt: 'A champagne satin ribbon tied in a bow beside coloured pencils' },
+];
+const deptPics = await Promise.all(departments.map((d) => pic(d.img, [400, 720, 1000])));
+const winPics = await Promise.all(departments.map((d) => getImage({ src: d.img, width: 360, format: 'webp', quality: 70 })));
+
+const rsvpText = "Hello Al Hikmah! I'll be at the grand opening on Sunday 29 November at 4 PM.";
+const waRsvp = `https://wa.me/${WA}?text=${encodeURIComponent(rsvpText)}`;
+const gcal = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+  + '&text=' + encodeURIComponent('Al Hikmah Stationery — Grand Opening')
+  + '&dates=20261129T120000Z/20261129T140000Z'
+  + '&location=' + encodeURIComponent('Al Hikmah Stationery, Sharjah, UAE (9CC3+H26)')
+  + '&details=' + encodeURIComponent('Grand opening of Al Hikmah Stationery. Invitation: ' + SITE);
+const directions = `https://www.google.com/maps/dir/?api=1&destination=${LAT},${LNG}`;
+const mapEmbed = `https://maps.google.com/maps?q=${LAT},${LNG}&z=16&hl=en&output=embed`;
+---
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Al Hikmah Stationery · Grand Opening, Sun 29 Nov, 4 PM · Sharjah</title>
+  <meta name="description" content="You're invited to the grand opening of Al Hikmah Stationery in Sharjah: stationery, office supplies, printing products and gifts. Sunday 29 November 2026, 4:00 PM.">
+  <meta name="theme-color" content="#0B0A09">
+  <link rel="canonical" href={SITE + '/'}>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content={SITE + '/'}>
+  <meta property="og:title" content="You're invited: Al Hikmah Stationery Grand Opening">
+  <meta property="og:description" content="Sunday 29 November 2026 · 4:00 PM · Sharjah. حفل الافتتاح الكبير">
+  <meta property="og:image" content={SITE + '/og.jpg'}>
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preload" href="/fonts/cormorant-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" as="image" type="image/avif" imagesrcset={hero.tall.avif} imagesizes="100vw" media="(max-width: 767px)" fetchpriority="high">
+  <link rel="preload" as="image" type="image/avif" imagesrcset={hero.wide.avif} imagesizes="100vw" media="(min-width: 768px)" fetchpriority="high">
+  <script is:inline>document.documentElement.className = 'js';</script>
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org', '@type': 'Event',
+    name: 'Al Hikmah Stationery — Grand Opening',
+    startDate: '2026-11-29T16:00:00+04:00', endDate: '2026-11-29T18:00:00+04:00',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode', eventStatus: 'https://schema.org/EventScheduled',
+    location: { '@type': 'Place', name: 'Al Hikmah Stationery', address: { '@type': 'PostalAddress', addressLocality: 'Sharjah', addressCountry: 'AE' }, geo: { '@type': 'GeoCoordinates', latitude: LAT, longitude: LNG } },
+    image: [SITE + '/og.jpg'],
+    organizer: { '@type': 'Organization', name: 'Al Hikmah Stationery', url: SITE, telephone: '+971503997597' },
+  })} />
+</head>
+<body>
+  <a class="skip" href="#invitation">Skip to the invitation</a>
+
+  <header class="hero" id="top">
+    <picture class="hero__pic">
+      <source media="(min-width: 768px)" type="image/avif" srcset={hero.wide.avif} sizes="100vw">
+      <source media="(min-width: 768px)" type="image/webp" srcset={hero.wide.webp} sizes="100vw">
+      <source type="image/avif" srcset={hero.tall.avif} sizes="100vw">
+      <source type="image/webp" srcset={hero.tall.webp} sizes="100vw">
+      <img src={hero.tall.jpg} width="1080" height="1935" alt="A gold satin ribbon tied in a bow beside an open gilt-edged notebook and a fountain pen on black marble" fetchpriority="high" decoding="async">
+    </picture>
+    <div class="hero__scrim" aria-hidden="true"></div>
+
+    <nav class="bar" aria-label="Main">
+      <a class="bar__mark" href="#top" aria-label="Al Hikmah Stationery, back to top">
+        <img src="/emblem-light.svg" width="98" height="66" alt="">
+      </a>
+      <ul class="bar__links">
+        <li><a href="#invitation">Invitation</a></li>
+        <li><a href="#departments">Departments</a></li>
+        <li><a href="#find-us">Find us</a></li>
+      </ul>
+      <a class="btn btn--paper bar__cta" href="#invitation" data-rsvp-jump>RSVP</a>
+    </nav>
+
+    <div class="hero__foot">
+      <div class="hero__row">
+        <div class="hero__copy" data-load style="--d:380ms">
+          <p class="hero__when">Grand opening, Sunday 29&nbsp;November at 4&nbsp;PM</p>
+          <p class="hero__lead">Our new stationery, office, printing and gifts store opens in Sharjah, and you’re invited.</p>
+        </div>
+        <div class="hero__count" data-load style="--d:460ms">
+          <p class="count" aria-live="off">
+            <span data-count-label>Opens in</span>
+            <span class="count__value" data-countdown>
+              <span><b data-d>10</b> days</span> <span><b data-h>0</b> h</span> <span><b data-m>0</b> m</span> <span><b data-s>0</b> s</span>
+            </span>
+          </p>
+        </div>
+      </div>
+      <h1 class="mono" aria-label="Al Hikmah Stationery" data-fit>
+        <span class="mono__line"><span class="mono__w" data-line style="--i:0">AL</span></span>
+        <span class="mono__win" aria-hidden="true">
+          {winPics.map((w, n) => <img src={w.src} width="360" height="450" alt="" loading="eager" decoding="async" style={`--n:${n}`}>)}
+        </span>
+        <span class="mono__line"><span class="mono__w" data-line style="--i:1">HIKMAH</span></span>
+      </h1>
+    </div>
+  </header>
+
+  <main>
+    <section class="invite" id="invitation" aria-labelledby="invite-en">
+      <div class="invite__en" data-reveal-group>
+        <h2 class="h2" id="invite-en" data-reveal>You’re invited<span data-guest-en></span>.</h2>
+        <p class="invite__first" data-reveal>It would be our honour to welcome you to the grand opening of Al&nbsp;Hikmah Stationery.</p>
+        <p data-reveal>Al Hikmah means “wisdom”. Every good idea starts with a pen and a page, and we want to be the shop where Sharjah’s students, offices and families find both.</p>
+        <p data-reveal>Join us on <strong>Sunday 29 November 2026 at 4:00&nbsp;PM</strong>. Walk the shelves, meet the team and leave with something to write with.</p>
+      </div>
+
+      <div class="invite__ar" lang="ar" dir="rtl" data-reveal-group>
+        <h2 class="h2 h2--ar" data-reveal>دعوة <span data-guest-ar>لضيفنا الكريم</span></h2>
+        <p class="invite__first" data-reveal>يسعدنا ويشرفنا دعوتكم لحضور حفل الافتتاح الكبير لـ«الحكمة القرطاسية».</p>
+        <p data-reveal>الحكمة تبدأ بقلم وورقة، ونطمح أن نكون وجهتكم في الشارقة لكل ما يحتاجه الطلاب والمكاتب والعائلات.</p>
+        <p data-reveal>وذلك يوم <strong>الأحد ٢٩ نوفمبر ٢٠٢٦، الساعة الرابعة عصراً</strong>. حضوركم يسعدنا.</p>
+      </div>
+
+      <form class="rsvp" id="rsvp" action={`https://wa.me/${WA}`} method="get" target="_blank" data-reveal>
+        <h3 class="rsvp__title">Let us know you’re coming</h3>
+        <div class="rsvp__fields">
+          <label class="field">
+            <span class="field__label">Your name</span>
+            <input class="field__input" type="text" name="guest" autocomplete="name" placeholder="e.g. Fatima Al Mansoori…" maxlength="40" spellcheck="false" enterkeyhint="send">
+          </label>
+          <label class="field field--small">
+            <span class="field__label">Guests</span>
+            <select class="field__input" name="party">
+              <option value="1">Just me</option>
+              <option value="2">2 people</option>
+              <option value="3">3 people</option>
+              <option value="4">4 people</option>
+              <option value="5+">5 or more</option>
+            </select>
+          </label>
+          <input type="hidden" name="text" value={rsvpText}>
+          <button class="btn btn--gold rsvp__send" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Reply on WhatsApp
+          </button>
+        </div>
+        <p class="rsvp__more">
+          <a class="link" href={gcal} target="_blank" rel="noopener">Add to Google Calendar</a>
+          <a class="link" href="/al-hikmah-grand-opening.ics" download>Add to Apple / Outlook</a>
+          <button class="link link--btn" type="button" data-share>Share this invitation</button>
+        </p>
+      </form>
+    </section>
+
+    <section class="depts" id="departments" aria-labelledby="depts-title">
+      <h2 class="h2 depts__title" id="depts-title" data-reveal>What’s on our shelves</h2>
+      <ul class="lineup" role="list">
+        {departments.map((d, n) => (
+          <li class="lineup__row" data-row style={`--i:${n}`}>
+            <span class="lineup__en">{d.en}</span>
+            <span class="lineup__what">{d.shelves}</span>
+            <span class="lineup__ar" lang="ar" dir="rtl">{d.ar}</span>
+          </li>
+        ))}
+      </ul>
+      <div class="shelf">
+        {departments.map((d, n) => (
+          <figure class="shelf__item" data-shutter style={`--i:${n}`}>
+            <div class="shelf__frame">
+              <picture>
+                <source type="image/avif" srcset={deptPics[n].avif} sizes="(min-width: 768px) 50vw, 100vw">
+                <source type="image/webp" srcset={deptPics[n].webp} sizes="(min-width: 768px) 50vw, 100vw">
+                <img src={deptPics[n].jpg} width="720" height="900" alt={d.alt} loading="lazy" decoding="async">
+              </picture>
+            </div>
+            <figcaption>{d.en} <span lang="ar" dir="rtl">{d.ar}</span></figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section class="find" id="find-us" aria-labelledby="find-title">
+      <div class="find__top">
+        <h2 class="h2" id="find-title" data-reveal>Find us in Sharjah</h2>
+        <div class="find__aside" data-reveal>
+          <p class="find__lead">Directions, questions, or a bulk order for your school or office: message us on WhatsApp any time.</p>
+          <a class="btn btn--ink" href={directions} target="_blank" rel="noopener">Get directions</a>
+          <p class="find__code">Plus code <span translate="no">9CC3+H26</span>, Sharjah, United Arab Emirates</p>
+        </div>
+      </div>
+      <figure class="find__map" data-reveal>
+        <iframe src={mapEmbed} title="Map showing Al Hikmah Stationery in Sharjah" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+      </figure>
+      <a class="find__number" href={`https://wa.me/${WA}`} target="_blank" rel="noopener" aria-label="Message Al Hikmah on WhatsApp: 050 399 7597" data-fit>
+        <span>050&nbsp;399&nbsp;7597</span>
+      </a>
+      <div class="find__corners">
+        <p>Call <a class="link" href="tel:+971564245208">056&nbsp;424&nbsp;5208</a><br>Sharjah, United Arab Emirates</p>
+        <p class="find__social"><a class="link" href="https://www.instagram.com/alhikmah.stationery/" target="_blank" rel="noopener">Instagram @alhikmah.stationery</a><br><a class="link" href="mailto:alhikmahstationary38@gmail.com" translate="no">alhikmahstationary38@gmail.com</a></p>
+      </div>
+    </section>
+
+    <section class="reply" id="reply" aria-labelledby="reply-word">
+      <a class="reply__band" href={waRsvp} target="_blank" rel="noopener" data-rsvp-link>
+        <span class="reply__note">Coming on Sunday? Tell us on WhatsApp and we’ll save you a welcome.</span>
+        <svg class="reply__arrow" viewBox="0 0 48 48" aria-hidden="true"><path d="M14 34 34 14M17 14h17v17" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+        <span class="reply__word" id="reply-word">Reply</span>
+      </a>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="foot__cols">
+      <div>
+        <h2 class="foot__h">Visit</h2>
+        <p>Al Hikmah Stationery<br>Sharjah, UAE<br><a class="link" href={directions} target="_blank" rel="noopener">Directions</a></p>
+      </div>
+      <div>
+        <h2 class="foot__h">Opening</h2>
+        <p>Sunday 29 November 2026<br>4:00 PM<br><a class="link" href={gcal} target="_blank" rel="noopener">Add to calendar</a></p>
+      </div>
+      <div>
+        <h2 class="foot__h">Talk to us</h2>
+        <p><a class="link" href={`https://wa.me/${WA}`} target="_blank" rel="noopener">WhatsApp 050&nbsp;399&nbsp;7597</a><br><a class="link" href="tel:+971564245208">Call 056&nbsp;424&nbsp;5208</a></p>
+      </div>
+      <div>
+        <h2 class="foot__h">Follow</h2>
+        <p><a class="link" href="https://www.instagram.com/alhikmah.stationery/" target="_blank" rel="noopener">Instagram</a><br><span lang="ar" dir="rtl">الحكمة القرطاسية</span></p>
+      </div>
+    </div>
+    <div class="foot__mark">
+      <p class="foot__word" data-fit>AL HIKMAH</p>
+      <p class="foot__legal">© 2026 Al Hikmah Stationery, Sharjah. Pictures generated for Al Hikmah.</p>
+    </div>
+  </footer>
+
+  <script>
+    import './../scripts/main.js';
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Al Hikmah Stationery//Grand Opening//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:grand-opening-2026@alhikmah-stationery.vercel.app
+DTSTAMP:20261119T000000Z
+DTSTART:20261129T120000Z
+DTEND:20261129T140000Z
+SUMMARY:Al Hikmah Stationery — Grand Opening
+DESCRIPTION:You are invited to the grand opening of Al Hikmah Stationery\, Sharjah. WhatsApp 050 399 7597. Invitation: https://alhikmah-stationery.vercel.app
+LOCATION:Al Hikmah Stationery\, Sharjah\, United Arab Emirates (9CC3+H26)
+GEO:25.3714104;55.4025383
+URL:https://alhikmah-stationery.vercel.app
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Al Hikmah Stationery grand opening at 4:00 PM
+END:VALARM
+END:VEVENT
+END:VCALENDAR
