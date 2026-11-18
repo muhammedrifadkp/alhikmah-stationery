@@ -457,3 +457,128 @@ function showToast(msg) {
     if (e.key === 'ArrowRight') render(current + 1);
   });
 })();
+
+/* ---------- Grand Opening Celebration Music Controller ---------- */
+(() => {
+  const audio = document.getElementById('bg-music');
+  const toggles = [...document.querySelectorAll('[data-music-toggle]')];
+  const labelEl = document.querySelector('[data-music-label]');
+  const drawerLabelEl = document.querySelector('[data-music-drawer-label]');
+  if (!(audio instanceof HTMLAudioElement) || !toggles.length) return;
+
+  const TARGET_VOLUME = 0.42;
+  let userPaused = false;
+  let wasPlayingOnHide = false;
+  let fadeRaf = 0;
+  let unlockArmed = false;
+
+  const stopFade = () => {
+    if (fadeRaf) {
+      cancelAnimationFrame(fadeRaf);
+      fadeRaf = 0;
+    }
+  };
+
+  const fadeTo = (targetVol, duration = 1400) => {
+    stopFade();
+    const startVol = audio.volume;
+    const startTime = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - startTime) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      audio.volume = Math.max(0, Math.min(1, startVol + (targetVol - startVol) * eased));
+      if (t < 1 && !audio.paused) {
+        fadeRaf = requestAnimationFrame(step);
+      } else {
+        fadeRaf = 0;
+      }
+    };
+    fadeRaf = requestAnimationFrame(step);
+  };
+
+  const syncUI = (playing) => {
+    toggles.forEach((btn) => {
+      btn.classList.toggle('is-playing', playing);
+      btn.setAttribute('aria-pressed', String(playing));
+      btn.setAttribute('aria-label', playing ? 'Pause opening song' : 'Play opening song');
+    });
+    if (labelEl) labelEl.textContent = playing ? 'Playing' : 'Play Song';
+    if (drawerLabelEl) drawerLabelEl.textContent = playing ? 'Pause Opening Song' : 'Play Opening Song';
+  };
+
+  const disarmUnlock = () => {
+    if (!unlockArmed) return;
+    unlockArmed = false;
+    window.removeEventListener('pointerdown', onFirstGesture, true);
+    window.removeEventListener('keydown', onFirstGesture, true);
+  };
+
+  const startMusic = async ({ withToast = false } = {}) => {
+    disarmUnlock();
+    try {
+      stopFade();
+      audio.volume = 0;
+      await audio.play();
+      syncUI(true);
+      fadeTo(TARGET_VOLUME, 1400);
+      if (withToast) showToast('Playing opening theme music');
+      return true;
+    } catch {
+      syncUI(false);
+      return false;
+    }
+  };
+
+  const pauseMusic = ({ manual = false, withToast = false } = {}) => {
+    if (manual) {
+      userPaused = true;
+      disarmUnlock();
+    }
+    stopFade();
+    audio.pause();
+    syncUI(false);
+    if (withToast) showToast('Music paused');
+  };
+
+  function onFirstGesture(e) {
+    if (userPaused) {
+      disarmUnlock();
+      return;
+    }
+    if (e.target instanceof Element && e.target.closest('[data-music-toggle]')) return;
+    startMusic();
+  }
+
+  const armUnlock = () => {
+    if (unlockArmed || userPaused) return;
+    unlockArmed = true;
+    window.addEventListener('pointerdown', onFirstGesture, { capture: true, passive: true });
+    window.addEventListener('keydown', onFirstGesture, { capture: true, passive: true });
+  };
+
+  toggles.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (!audio.paused) {
+        pauseMusic({ manual: true, withToast: true });
+      } else {
+        userPaused = false;
+        startMusic({ withToast: true });
+      }
+    });
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      wasPlayingOnHide = !audio.paused;
+      if (wasPlayingOnHide) pauseMusic({ manual: false });
+    } else if (wasPlayingOnHide && !userPaused) {
+      wasPlayingOnHide = false;
+      startMusic();
+    }
+  });
+
+  // Attempt gentle autoplay; if browser requires gesture, unlock smoothly on first interaction
+  startMusic().then((ok) => {
+    if (!ok && !userPaused) armUnlock();
+  });
+})();

@@ -262,6 +262,10 @@ const mapEmbed = `https://maps.google.com/maps?q=${LAT},${LNG}&z=16&hl=en&output
       </nav>
 
       <div class="nav__actions">
+        <button class="nav__music" type="button" data-music-toggle aria-pressed="false" aria-label="Play opening song" title="Play opening theme song">
+          <span class="eq-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="nav__music-label" data-music-label>Play Song</span>
+        </button>
         <button class="nav__share" type="button" data-share aria-label="Share this invitation" title="Share invitation">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
@@ -293,6 +297,10 @@ const mapEmbed = `https://maps.google.com/maps?q=${LAT},${LNG}&z=16&hl=en&output
       <a class="btn btn--gold" href="#rsvp" data-rsvp-jump>Confirm Attendance (RSVP)</a>
       <a class="btn btn--outline" href={directions} target="_blank" rel="noopener">Open in Google Maps</a>
       <a class="btn btn--outline" href={gcal} target="_blank" rel="noopener">Add to Google Calendar</a>
+      <button class="btn btn--outline" type="button" data-music-toggle aria-pressed="false">
+        <span class="eq-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span data-music-drawer-label>Play Opening Song</span>
+      </button>
       <p class="drawer__meta">Sunday, 29 November 2026 · 4:00 PM · Sharjah, UAE</p>
     </div>
   </div>
@@ -897,6 +905,7 @@ const mapEmbed = `https://maps.google.com/maps?q=${LAT},${LNG}&z=16&hl=en&output
 
       <div class="foot__bottom">
         <span>© 2026 Al Hikmah Stationery · Sharjah, United Arab Emirates (9CC3+H26)</span>
+        <span class="foot__credit">Music: &ldquo;Eastern Thought&rdquo; by Kevin MacLeod (incompetech.com) · CC BY 4.0</span>
         <span lang="ar" dir="rtl">الحكمة القرطاسية لبيع أدوات · الشارقة</span>
       </div>
     </div>
@@ -942,6 +951,9 @@ const mapEmbed = `https://maps.google.com/maps?q=${LAT},${LNG}&z=16&hl=en&output
       <span lang="ar" dir="rtl" data-lb-ar></span>
     </div>
   </div>
+
+  <!-- Background Grand Opening Music -->
+  <audio id="bg-music" src="/audio/opening-theme.mp3" loop preload="metadata"></audio>
 
   <!-- Live Toast -->
   <div class="toast" data-toast role="status" aria-live="polite"></div>
